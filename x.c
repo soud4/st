@@ -1262,6 +1262,8 @@ xinit(int cols, int rows)
 	xsel.xtarget = XInternAtom(xw.dpy, "UTF8_STRING", 0);
 	if (xsel.xtarget == None)
 		xsel.xtarget = XA_STRING;
+
+	boxdraw_xinit(xw.dpy, xw.cmap, xw.draw, xw.vis);
 }
 
 void
@@ -1331,15 +1333,21 @@ xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x
 		} else {
 			/* If it's not found, try to fetch it through the font cache. */
 			rune = glyphs[idx].u;
-			for (f = 0; f < frclen; f++) {
-				glyphidx = XftCharIndex(xw.dpy, frc[f].font, rune);
-				/* Everything correct. */
-				if (glyphidx && frc[f].flags == frcflags)
-					break;
-				/* We got a default font for a not found glyph. */
-				if (!glyphidx && frc[f].flags == frcflags
-						&& frc[f].unicodep == rune) {
-					break;
+
+			if ( mode & ATTR_BOXDRAW) {
+				glyphidx = boxdrawindex(&glyphs[idx]);
+    		f = -1; /* usamos una fuente especial, no buscamos en cache */
+			} else {
+				for (f = 0; f < frclen; f++) {
+					glyphidx = XftCharIndex(xw.dpy, frc[f].font, rune);
+					/* Everything correct. */
+					if (glyphidx && frc[f].flags == frcflags)
+						break;
+					/* We got a default font for a not found glyph. */
+					if (!glyphidx && frc[f].flags == frcflags
+							&& frc[f].unicodep == rune) {
+						break;
+					}
 				}
 			}
 
@@ -1394,8 +1402,11 @@ xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x
 				FcPatternDestroy(fcpattern);
 				FcCharSetDestroy(fccharset);
 			}
-
-			specs[numspecs].font = frc[f].font;
+			if (f == -1) {
+					specs[numspecs].font = font->match;
+			} else {
+					specs[numspecs].font = frc[f].font;
+			}
 			specs[numspecs].glyph = glyphidx;
 			specs[numspecs].x = (short)xp;
 			specs[numspecs].y = (short)yp;
@@ -1524,8 +1535,12 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 	r.width = width;
 	XftDrawSetClipRectangles(xw.draw, winx, winy, &r, 1);
 
-	/* Render the glyphs. */
-	XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
+	if (base.mode & ATTR_BOXDRAW) {
+		drawboxes(winx, winy, width / len, win.ch, fg, bg, specs, len);
+	} else {
+		/* Render the glyphs. */
+		XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
+	}
 
 	/* Render underline and strikethrough. */
 	if (base.mode & ATTR_UNDERLINE) {
@@ -1571,7 +1586,7 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og, Line line, int le
 	/*
 	 * Select the right color for the right mode.
 	 */
-	g.mode &= ATTR_BOLD|ATTR_ITALIC|ATTR_UNDERLINE|ATTR_STRUCK|ATTR_WIDE;
+	g.mode &= ATTR_BOLD|ATTR_ITALIC|ATTR_UNDERLINE|ATTR_STRUCK|ATTR_WIDE|ATTR_BOXDRAW;
 
 	if (IS_SET(MODE_REVERSE)) {
 		g.mode |= ATTR_REVERSE;
