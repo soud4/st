@@ -6,7 +6,7 @@
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
 
-static char *font = "JetBrainsMono Nerd Font:weight=100:pixelsize=12:spacing=100:rgba=1:antialias=true:lcdfilter=1:hintstyle=2:autohint=true";
+static char *font = "MonaspiceNe Nerd Font:weight=100:pixelsize=12:spacing=100:rgba=1:antialias=true:lcdfilter=1:hintstyle=2:autohint=true";
 static int borderpx = 0;
 
 /*
@@ -109,32 +109,32 @@ unsigned int tabspaces = 8;
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
-	"black",
-	"red3",
-	"green3",
-	"yellow3",
-	"blue2",
-	"magenta3",
-	"cyan3",
-	"gray90",
+	"#01060e",  /* black   */
+	"#ea6c73",  /* red     */
+	"#91b362",  /* green   */
+	"#f9af4f",  /* yellow  */
+	"#53bdfa",  /* blue    */
+	"#fae994",  /* magenta */
+	"#90e1c6",  /* cyan    */
+	"#c7c7c7",  /* white   */
 
 	/* 8 bright colors */
-	"gray50",
-	"red",
-	"green",
-	"yellow",
-	"#5c5cff",
-	"magenta",
-	"cyan",
-	"white",
+	"#686868",  /* bright black   */
+	"#f07178",  /* bright red     */
+	"#c2d94c",  /* bright green   */
+	"#ffb454",  /* bright yellow  */
+	"#59c2ff",  /* bright blue    */
+	"#ffee99",  /* bright magenta */
+	"#95e6cb",  /* bright cyan    */
+	"#ffffff",  /* bright white   */
 
 	[255] = 0,
 
 	/* more colors can be added after 255 to use with DefaultXX */
-	"#cccccc",
-	"#555555",
-	"gray90", /* default foreground colour */
-	"black", /* default background colour */
+	"#e6b450",  /* 256 -> cursor color  */
+	"#b3b1ad",  /* 257 -> reverse cursor */
+	"#b3b1ad",  /* 258 -> foreground     */
+	"#040404",  /* 259 -> background     */
 };
 
 
@@ -142,8 +142,8 @@ static const char *colorname[] = {
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor
  */
-unsigned int defaultfg = 259;
-unsigned int defaultbg = 258;
+unsigned int defaultfg = 258;
+unsigned int defaultbg = 259;
 unsigned int defaultcs = 256;
 static unsigned int defaultrcs = 257;
 
